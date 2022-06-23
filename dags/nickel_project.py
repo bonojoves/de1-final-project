@@ -72,7 +72,7 @@ def upload_string_to_gcs(csv_body, uploaded_filename):
 def download_weather_data():
     # Get daily data from 2020
     data = Daily(cdo, start, end)
-    data = data.fetch()
+    weather_df = data.fetch()
     # Save the data to .csv
     filename = f"weather-data-{end.strftime('%m-%d-%Y')}.csv"
     data.to_csv(f"{DATA_PATH}/{filename}")
@@ -81,7 +81,7 @@ def download_weather_data():
 
 def download_stock_data(ticker='NIKL'):
     # get data
-    data = get_pse_data(ticker, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
+    ticker_df = get_pse_data(ticker, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
     # save data to csv
     filename = f"stock-data-{end.strftime('%m-%d-%Y')}.csv"
     data.to_csv(f"{DATA_PATH}/{filename}")
@@ -107,19 +107,37 @@ def business_world_feed(ds=None, **kwargs):
 @task(task_id="weather")
 def weather_data_meteostat(ds=None, **kwargs):
     download_weather_data()
-    return True
+    return weather_df
 
 @task(task_id="stock_prices")
 def stock_prices(ds=None, **kwargs):
     download_stock_data()
-    return True
+    return ticker_df
 
 
 ###################
 # TRANSFORM TASKS #
 ###################
 
-pass
+@task(task_id="transform")
+def data_transform():
+    # change file path to proper
+    ## ticker_df = pd.read_csv("")
+    ## weather_df = pd.read_csv("")
+    # combine the 2 dfs
+    combined = weather_df.join(ticker_df)
+    # columns to drop
+    cols_to_drop = ['prcp', 'snow', 'wpgt', 'tsun', 'dt']
+    combined.drop(cols_to_drop, axis=1, inplace=True)
+    # set_index to date
+    combined.set_index('time', inplace=True)
+    # replace NaNs with median
+    for col in list(combined.columns):
+        value = combined[col].median()
+        combined[col].fillna(value, inplace=True)
+    # save
+    filename = f"combined-data-{end.strftime('%m-%d-%Y')}.csv"
+    data.to_csv(f"{DATA_PATH}/{filename}")
 
 ##############
 # LOAD TASKS #
@@ -194,4 +212,4 @@ with DAG(
 # ETL PIPELINE #
 ################
 
-tdag_start >> [business_world_feed(), business_mirror_feed(), weather_data_meteostat(), stock_prices()] >> load_data() >> tdag_end
+tdag_start >> [business_world_feed(), business_mirror_feed(), weather_data_meteostat(), stock_prices()] >> data_transform() >> load_data() >> tdag_end
