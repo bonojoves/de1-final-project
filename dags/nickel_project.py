@@ -179,11 +179,13 @@ with DAG(
 
     tdag_start = BashOperator(
         task_id="dag_start_msg",
+        bash_command = "echo Starting",
         dag=dag
     )
     
     tdag_end = BashOperator(
         task_id="dag_end_msg",
+        bash_command = "echo End",
         dag=dag
     )
 
