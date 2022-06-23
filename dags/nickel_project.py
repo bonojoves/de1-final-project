@@ -75,7 +75,7 @@ def download_weather_data():
     weather_df = data.fetch()
     # Save the data to .csv
     filename = f"weather-data-{end.strftime('%m-%d-%Y')}.csv"
-    data.to_csv(f"{DATA_PATH}/{filename}")
+    weather_df.to_csv(f"{DATA_PATH}/{filename}")
     # upload
     # upload_string_to_gcs(csv_body='weather_data.csv', uploaded_filename=filename)
 
@@ -84,7 +84,7 @@ def download_stock_data(ticker='NIKL'):
     ticker_df = get_pse_data(ticker, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
     # save data to csv
     filename = f"stock-data-{end.strftime('%m-%d-%Y')}.csv"
-    data.to_csv(f"{DATA_PATH}/{filename}")
+    ticker_df.to_csv(f"{DATA_PATH}/{filename}")
     # upload
     # upload_string_to_gcs(csv_body='stock_data.csv', uploaded_filename=filename)
 
