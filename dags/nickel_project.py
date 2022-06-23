@@ -137,7 +137,7 @@ def load_data(ds=None, **kwargs):
             df = pd.read_csv(outfile)
             csv_buffer = StringIO()
             df.to_csv(csv_buffer)
-            upload_string_to_gcs(csv_body=csv_buffer, uploaded_filename=outfile)
+            upload_string_to_gcs(csv_body=csv_buffer, uploaded_filename=file)
         except: pass
 
 
