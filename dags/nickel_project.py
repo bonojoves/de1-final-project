@@ -107,12 +107,12 @@ def business_world_feed(ds=None, **kwargs):
 @task(task_id="weather")
 def weather_data_meteostat(ds=None, **kwargs):
     download_weather_data()
-    return weather_df
+    return True
 
 @task(task_id="stock_prices")
 def stock_prices(ds=None, **kwargs):
     download_stock_data()
-    return ticker_df
+    return True
 
 
 ###################
