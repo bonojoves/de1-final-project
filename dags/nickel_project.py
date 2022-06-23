@@ -40,7 +40,7 @@ BUCKET_NAME = "nickel-data"
 # Folder name
 MY_FOLDER_PREFIX = "bonojoves-DEC1-final"
 # start date and time - start at 2020
-start = datetime(2020, 1, 1)
+start = datetime(2022, 1, 1)
 end = datetime.now()
 # Create Point for Cagayan De Oro - Surigao weather station not returning anything
 cdo = Point(8.4542, 124.6319)
@@ -137,7 +137,7 @@ def data_transform():
         combined[col].fillna(value, inplace=True)
     # save
     filename = f"combined-data-{end.strftime('%m-%d-%Y')}.csv"
-    data.to_csv(f"{DATA_PATH}/{filename}")
+    combined.to_csv(f"{DATA_PATH}/{filename}")
 
 ##############
 # LOAD TASKS #
