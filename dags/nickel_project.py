@@ -72,19 +72,19 @@ def upload_string_to_gcs(csv_body, uploaded_filename):
 def download_weather_data():
     # Get daily data from 2020
     data = Daily(cdo, start, end)
-    weather_df = data.fetch()
+    data = data.fetch()
     # Save the data to .csv
     filename = f"weather-data-{end.strftime('%m-%d-%Y')}.csv"
-    weather_df.to_csv(f"{DATA_PATH}/{filename}")
+    data.to_csv(f"{DATA_PATH}/{filename}")
     # upload
     # upload_string_to_gcs(csv_body='weather_data.csv', uploaded_filename=filename)
 
 def download_stock_data(ticker='NIKL'):
     # get data
-    ticker_df = get_pse_data(ticker, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
+    data = get_pse_data(ticker, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
     # save data to csv
     filename = f"stock-data-{end.strftime('%m-%d-%Y')}.csv"
-    ticker_df.to_csv(f"{DATA_PATH}/{filename}")
+    data.to_csv(f"{DATA_PATH}/{filename}")
     # upload
     # upload_string_to_gcs(csv_body='stock_data.csv', uploaded_filename=filename)
 
@@ -122,8 +122,8 @@ def stock_prices(ds=None, **kwargs):
 @task(task_id="transform")
 def data_transform():
     # change file path to proper
-    ## ticker_df = pd.read_csv("")
-    ## weather_df = pd.read_csv("")
+    ticker_df = pd.read_csv(f"{DATA_PATH}/stock-data-{end.strftime('%m-%d-%Y')}.csv")
+    weather_df = pd.read_csv(f"{DATA_PATH}/weather-data-{end.strftime('%m-%d-%Y')}.csv")
     # combine the 2 dfs
     combined = weather_df.join(ticker_df)
     # columns to drop
