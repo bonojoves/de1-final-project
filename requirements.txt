@@ -1,0 +1,5 @@
+fastquant==0.1.8.0
+feedparser==6.0.10
+meteostat==1.6.1
+pandas==1.4.2
+spacy==3.2.1
