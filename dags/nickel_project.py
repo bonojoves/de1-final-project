@@ -59,13 +59,13 @@ def upload_formatted_rss_feed(feed, feed_name):
     filename = feed_name + '_' + time_now + '.csv'
     df.to_csv(f"{DATA_PATH}{filename}", index=False)
 
-def upload_string_to_gcs(csv_body, uploaded_filename, service_secret=os.environ.get('SERVICE_SECRET')):
+def upload_string_to_gcs(csv_body, uploaded_filename):
     gcs_resource = boto3.resource(
         "s3",
         region_name="auto",
         endpoint_url="https://storage.googleapis.com",
-        aws_access_key_id=os.environ.get("SERVICE_ACCESS_KEY"),
-        aws_secret_access_key=os.environ.get("SERVICE_SECRET"),
+        aws_access_key_id=Variable.get("SERVICE_ACCESS_KEY"),
+        aws_secret_access_key=Variable.get("SERVICE_SECRET"),
     )
     gcs_resource.Object(BUCKET_NAME, MY_FOLDER_PREFIX + "/" + uploaded_filename).put(Body=csv_body.getvalue())
 
