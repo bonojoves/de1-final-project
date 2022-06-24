@@ -234,4 +234,7 @@ with DAG(
 # ETL PIPELINE #
 ################
 
-tdag_start >> [business_world_feed(), business_mirror_feed(), [[[weather_data_meteostat(), stock_prices()] >> data_transform()] >> data_normalize()]] >> load_data() >> clear_data() >> tdag_end
+tdag_start >> \
+[business_world_feed(), business_mirror_feed(), \
+ [[[weather_data_meteostat(), stock_prices()] >> data_transform()] >> data_normalize()]] \
+>> load_data() >> clear_data() >> tdag_end
