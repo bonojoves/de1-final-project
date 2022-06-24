@@ -150,7 +150,7 @@ def data_normalize():
     normalized_df=(df-df.min())/(df.max()-df.min())
     # save
     filename = f"normalized-data-{end.strftime('%m-%d-%Y')}.csv"
-    combined.to_csv(f"{DATA_PATH}/{filename}")
+    df.to_csv(f"{DATA_PATH}/{filename}")
  
    
 ##############
