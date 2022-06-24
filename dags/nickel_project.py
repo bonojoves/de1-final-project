@@ -128,7 +128,7 @@ def data_transform():
     # combine the 2 dfs
     combined = weather_df.join(ticker_df)
     # columns to drop
-    cols_to_drop = ['prcp', 'snow', 'wpgt', 'tsun', 'dt']
+    cols_to_drop = ['prcp', 'snow', 'wpgt', 'tsun', 'dt', 'dividend']
     combined.drop(cols_to_drop, axis=1, inplace=True)
     # set_index to date
     combined.set_index('time', inplace=True)
