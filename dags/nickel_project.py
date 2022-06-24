@@ -5,6 +5,7 @@ from io import StringIO
 import feedparser
 import pandas as pd
 from google.cloud import bigquery
+import shutil
 
 # The DAG object; we'll need this to instantiate a DAG
 from airflow import DAG
@@ -55,7 +56,7 @@ DATA_PATH = "/opt/airflow/data/"
 def upload_formatted_rss_feed(feed, feed_name):
     feed = feedparser.parse(feed)
     df = pd.DataFrame(feed['entries'])
-    time_now = datetime.now().strftime('%Y-%m-%d_%I-%M-%S')
+    time_now = datetime.now().strftime('%Y-%m-%d')
     filename = feed_name + '_' + time_now + '.csv'
     df.to_csv(f"{DATA_PATH}{filename}", index=False)
 
@@ -139,6 +140,17 @@ def data_transform():
     filename = f"combined-data-{end.strftime('%m-%d-%Y')}.csv"
     combined.to_csv(f"{DATA_PATH}/{filename}")
 
+@task(task_id="normalize")
+def data_normalize():
+    # change file path to proper
+    df = pd.read_csv(f"{DATA_PATH}/combined-data-{end.strftime('%m-%d-%Y')}.csv")
+    # normalize
+    normalized_df=(df-df.min())/(df.max()-df.min())
+    # save
+    filename = f"normalized-data-{end.strftime('%m-%d-%Y')}.csv"
+    combined.to_csv(f"{DATA_PATH}/{filename}")
+ 
+   
 ##############
 # LOAD TASKS #
 ##############
@@ -158,7 +170,17 @@ def load_data(ds=None, **kwargs):
             upload_string_to_gcs(csv_body=csv_buffer, uploaded_filename=file)
         except: pass
 
-
+@task(task_id="clear_data")
+def clear_data(ds=None, **kwargs):
+    for filename in os.listdir(DATA_PATH):
+        file_path = os.path.join(DATA_PATH, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
 
 ##############
 # DAG PROPER #
@@ -212,4 +234,4 @@ with DAG(
 # ETL PIPELINE #
 ################
 
-tdag_start >> [business_world_feed(), business_mirror_feed(), weather_data_meteostat(), stock_prices()] >> data_transform() >> load_data() >> tdag_end
+tdag_start >> [business_world_feed(), business_mirror_feed(), [[[weather_data_meteostat(), stock_prices()] >> data_transform()] >> data_normalize()]] >> load_data() >> clear_data() >> tdag_end
