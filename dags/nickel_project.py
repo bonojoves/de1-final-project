@@ -144,6 +144,8 @@ def data_transform():
 def data_normalize():
     # change file path to proper
     df = pd.read_csv(f"{DATA_PATH}/combined-data-{end.strftime('%m-%d-%Y')}.csv")
+    # set_index to date
+    combined.set_index('time', inplace=True)
     # normalize
     normalized_df=(df-df.min())/(df.max()-df.min())
     # save
